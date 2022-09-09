@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -11,7 +11,9 @@ const { handleError } = require('./middlewares/handleError');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { NotFoundError } = require('./utils/errors/allErrors');
 
-const { PORT, DB_URL } = require('./constants/constants');
+const { DB_URL } = require('./constants/constants');
+
+const { PORT = 3000, NODE_ENV, DATABASE_URL } = process.env;
 
 const app = express();
 app.use(cors());
@@ -29,23 +31,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(requestLogger);
 // Apply the rate limiting middleware to all requests
 app.use(limiter);
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
-  }, 0);
-});
 app.use(require('./routes/auth'));
 
 app.use(auth);
-app.use('/users', require('./routes/user'));
-app.use('/movies', require('./routes/movie'));
+
+app.use(require('./routes/user'));
+app.use(require('./routes/movie'));
 
 app.use((req, res, next) => next(new NotFoundError('Такой страницы не существует')));
 app.use(errorLogger);
 app.use(errors());
 
 app.use(handleError);
-mongoose.connect(DB_URL, () => {
+
+mongoose.connect(NODE_ENV === 'production' ? DATABASE_URL : DB_URL, () => {
   console.log(`Connected to db on ${DB_URL}`);
 });
 

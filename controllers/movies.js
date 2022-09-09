@@ -3,7 +3,8 @@ const { errorMessage } = require('../utils/errorMessage');
 const { NotFoundError, ForbiddenError } = require('../utils/errors/allErrors');
 
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({}).sort({ createdAt: -1 })
+  const owner = req.user._id;
+  Movie.find({ owner }).sort({ createdAt: -1 })
     .then((movies) => res.send(movies))
     .catch((err) => errorMessage(err, req, res, next));
 };

@@ -12,7 +12,7 @@ module.exports.getUserMe = (req, res, next) => {
       throw new NotFoundError('Пользователь не найден');
     })
     .then((user) => {
-      res.send({ data: user });
+      res.send(user);
     })
     .catch((err) => errorMessage(err, req, res, next));
 };
@@ -29,8 +29,8 @@ module.exports.createUser = (req, res, next) => {
       password: hash,
     }))
     .then((user) => {
-      const { _id } = user;
-      res.send({ _id, email, name });
+      /* const { _id } = user; */
+      res.send(user);
     })
     .catch((err) => errorMessage(err, req, res, next));
 };
@@ -46,7 +46,7 @@ module.exports.updateUserInfo = (req, res, next) => {
     .orFail(() => {
       throw new NotFoundError('Пользователь (ID) не найден');
     })
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => errorMessage(err, req, res, next));
 };
 
